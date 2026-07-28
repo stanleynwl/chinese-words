@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>听写学习 — Chinese Words Practice</title>
+<script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5.0/dist/hanzi-writer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3/dist/index.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+    background: linear-gradient(135deg, #fef6e4 0%, #f8edd9 100%);
+    color: #2b2b2b;
+    min-height: 100vh;
+  }
+  header {
+    text-align: center;
+    padding: 24px 16px 12px;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 28px;
+    color: #d97706;
+  }
+  header p {
+    margin: 6px 0 0;
+    color: #6b6b6b;
+    font-size: 14px;
+  }
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 16px 0 24px;
+    flex-wrap: wrap;
+  }
+  .tab {
+    padding: 10px 20px;
+    border: 2px solid #d97706;
+    background: #fff;
+    color: #d97706;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .tab.active {
+    background: #d97706;
+    color: #fff;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    padding: 0 16px 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .pinyin {
+    font-size: 16px;
+    color: #6b7280;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .word-num {
+    align-self: flex-start;
+    font-size: 13px;
+    color: #9ca3af;
+    font-weight: 600;
+  }
+  .chars {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .char-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .writer-target {
+    width: 100px;
+    height: 100px;
+    border: 2px solid #f59e0b;
+    border-radius: 4px;
+    background-color: #fffbeb;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cline x1='50' y1='0' x2='50' y2='100' stroke='%23fcd34d' stroke-width='1' stroke-dasharray='4,3'/%3E%3Cline x1='0' y1='50' x2='100' y2='50' stroke='%23fcd34d' stroke-width='1' stroke-dasharray='4,3'/%3E%3C/svg%3E");
+  }
+  .char-controls {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+  }
+  .icon-btn {
+    background: #fef3c7;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .icon-btn:hover { background: #fde68a; }
+  .icon-btn:active { transform: scale(0.95); }
+  .speak-btn {
+    margin-top: 8px;
+    background: #d97706;
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .speak-btn:hover { background: #b45309; }
+  .list-section { display: none; }
+  .list-section.active { display: block; }
+  .list-title {
+    text-align: center;
+    color: #4b5563;
+    font-size: 15px;
+    margin: 0 0 12px;
+  }
+  .custom-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin: 0 16px 28px;
+  }
+  .custom-section h2 {
+    margin: 0;
+    font-size: 16px;
+    color: #4b5563;
+    font-weight: 600;
+  }
+  .custom-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    max-width: 420px;
+  }
+  #customInput {
+    flex: 1;
+    padding: 10px 14px;
+    font-size: 18px;
+    border: 2px solid #d97706;
+    border-radius: 999px;
+    outline: none;
+    font-family: inherit;
+    background: #fff;
+    color: #2b2b2b;
+  }
+  #customInput:focus { border-color: #b45309; box-shadow: 0 0 0 3px #fde68a55; }
+  #customBtn {
+    padding: 10px 18px;
+    background: #d97706;
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #customBtn:hover { background: #b45309; }
+  #customError {
+    color: #dc2626;
+    font-size: 14px;
+    display: none;
+  }
+  #customResult {
+    width: 100%;
+    max-width: 420px;
+  }
+  #customResult .card {
+    max-width: 420px;
+    margin: 0 auto;
+    border: 2px solid #fde68a;
+  }
+  .save-btn {
+    margin-top: 8px;
+    background: #fff;
+    color: #d97706;
+    border: 2px solid #d97706;
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .save-btn:hover { background: #fef3c7; }
+  .save-btn.saved { background: #d97706; color: #fff; }
+  .remove-btn {
+    margin-top: 6px;
+    background: #fff;
+    color: #dc2626;
+    border: 2px solid #fca5a5;
+    border-radius: 999px;
+    padding: 5px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .remove-btn:hover { background: #fee2e2; }
+  .tab-badge {
+    display: inline-block;
+    background: #fde68a;
+    color: #92400e;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 7px;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+  .tab.active .tab-badge { background: #fff3; color: #fff; }
+  .saved-empty {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 15px;
+    padding: 32px 16px;
+  }
+  .add-list-section {
+    max-width: 520px;
+    margin: 0 auto 28px;
+    padding: 0 16px;
+  }
+  .add-list-toggle {
+    display: block;
+    width: 100%;
+    padding: 11px;
+    background: #fff;
+    border: 2px dashed #d97706;
+    border-radius: 12px;
+    color: #d97706;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .add-list-toggle:hover { background: #fef3c7; }
+  .add-list-form {
+    display: none;
+    background: #fff;
+    border: 2px solid #d97706;
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 8px;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .add-list-form.open { display: flex; }
+  .add-list-form label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4b5563;
+    margin-bottom: 2px;
+    display: block;
+  }
+  .add-list-form input[type="text"],
+  .add-list-form select,
+  .add-list-form textarea {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    background: #fffbeb;
+    color: #2b2b2b;
+    transition: border-color 0.15s;
+  }
+  .add-list-form input:focus,
+  .add-list-form select:focus,
+  .add-list-form textarea:focus { border-color: #d97706; }
+  .add-list-form textarea {
+    height: 130px;
+    resize: vertical;
+    line-height: 1.7;
+  }
+  .form-row { display: flex; gap: 8px; }
+  .form-row > div { flex: 1; }
+  .add-list-submit {
+    background: #d97706;
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 24px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    align-self: flex-end;
+  }
+  .add-list-submit:hover { background: #b45309; }
+  .add-list-hint {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 2px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📝 听写练习 Dictation Practice</h1>
+  <p>点击 ▶ 看笔顺 · 点击 ✍ 自己写 · 点击 🔊 听发音</p>
+</header>
+
+<div class="add-list-section">
+  <button class="add-list-toggle" id="addListToggle">＋ 新建听写 Add New List</button>
+  <div class="add-list-form" id="addListForm">
+    <div class="form-row">
+      <div>
+        <label>日期 Date</label>
+        <input type="text" id="newListDate" placeholder="e.g. 25-6-2026" maxlength="20">
+      </div>
+      <div>
+        <label>星期 Day</label>
+        <select id="newListDay">
+          <option value="星期一">星期一 Mon</option>
+          <option value="星期二">星期二 Tue</option>
+          <option value="星期三" selected>星期三 Wed</option>
+          <option value="星期四">星期四 Thu</option>
+          <option value="星期五">星期五 Fri</option>
+          <option value="星期六">星期六 Sat</option>
+          <option value="星期日">星期日 Sun</option>
+        </select>
+      </div>
+    </div>
+    <div>
+      <label>词语 Words <span class="add-list-hint">（每行一个词 · one word per line）</span></label>
+      <textarea id="newListWords" placeholder="大雾&#10;危险&#10;海盗&#10;飞行员"></textarea>
+    </div>
+    <button class="add-list-submit" id="addListSubmit">生成 Generate ✨</button>
+  </div>
+</div>
+
+<div class="custom-section">
+  <h2>🔍 Try Any Chinese Word</h2>
+  <div class="custom-row">
+    <input id="customInput" type="text" placeholder="输入汉字… e.g. 飞机" maxlength="10" autocomplete="off">
+    <button id="customBtn">生成</button>
+  </div>
+  <div id="customError">⚠️ Please enter Chinese characters (汉字) only.</div>
+  <div id="customResult"></div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-list="0">6-5-2026 星期三</button>
+  <button class="tab" data-list="1">8-5-2026 星期五</button>
+  <button class="tab" data-list="2">20-5-2026 星期三</button>
+  <button class="tab" data-list="3">22-5-2026 星期五</button>
+  <button class="tab" data-list="4">10-6-2026 星期三</button>
+  <button class="tab" data-list="5">12-6-2026 星期五</button>
+  <button class="tab" data-list="6">24-6-2026 星期三</button>
+  <button class="tab" data-list="7">26-6-2026 星期五</button>
+  <button class="tab" data-list="8">1-7-2026 星期三</button>
+  <button class="tab" data-list="9">3-7-2026 星期五</button>
+  <button class="tab" data-list="10">15-7-2026 星期三</button>
+  <button class="tab" data-list="11">18-7-2026 星期五</button>
+  <button class="tab" data-list="12">22-7-2026 星期三</button>
+  <button class="tab" data-list="13">25-7-2026 星期五</button>
+  <button class="tab" data-list="14">29-7-2026 星期三</button>
+  <button class="tab" data-list="15">31-7-2026 星期五</button>
+  <button class="tab" data-list="saved" id="savedTab">⭐ My Words<span class="tab-badge" id="savedBadge">0</span></button>
+</div>
+
+<section class="list-section active" id="list-0">
+  <p class="list-title">第一组 — 10 个词</p>
+  <div class="grid" id="grid-0"></div>
+</section>
+
+<section class="list-section" id="list-1">
+  <p class="list-title">第二组 — 12 个词</p>
+  <div class="grid" id="grid-1"></div>
+</section>
+
+<section class="list-section" id="list-2">
+  <p class="list-title">第三组 — 10 个词</p>
+  <div class="grid" id="grid-2"></div>
+</section>
+
+<section class="list-section" id="list-3">
+  <p class="list-title">第四组 — 10 个词</p>
+  <div class="grid" id="grid-3"></div>
+</section>
+
+<section class="list-section" id="list-4">
+  <p class="list-title">第五组 — 9 个词</p>
+  <div class="grid" id="grid-4"></div>
+</section>
+
+<section class="list-section" id="list-5">
+  <p class="list-title">第六组 — 14 个词</p>
+  <div class="grid" id="grid-5"></div>
+</section>
+
+<section class="list-section" id="list-6">
+  <p class="list-title">第七组 — 10 个词</p>
+  <div class="grid" id="grid-6"></div>
+</section>
+
+<section class="list-section" id="list-7">
+  <p class="list-title">第八组 — 12 个词</p>
+  <div class="grid" id="grid-7"></div>
+</section>
+
+<section class="list-section" id="list-8">
+  <p class="list-title">第九组 — 12 个词</p>
+  <div class="grid" id="grid-8"></div>
+</section>
+
+<section class="list-section" id="list-9">
+  <p class="list-title">第十组 — 8 个词</p>
+  <div class="grid" id="grid-9"></div>
+</section>
+
+<section class="list-section" id="list-10">
+  <p class="list-title">第十一组 — 8 个词</p>
+  <div class="grid" id="grid-10"></div>
+</section>
+
+<section class="list-section" id="list-11">
+  <p class="list-title">第十二组 — 8 个词</p>
+  <div class="grid" id="grid-11"></div>
+</section>
+
+<section class="list-section" id="list-12">
+  <p class="list-title">第十三组 — 10 个词</p>
+  <div class="grid" id="grid-12"></div>
+</section>
+
+<section class="list-section" id="list-13">
+  <p class="list-title">第十四组 — 10 个词</p>
+  <div class="grid" id="grid-13"></div>
+</section>
+
+<section class="list-section" id="list-14">
+  <p class="list-title">第十五组 — 12 个词</p>
+  <div class="grid" id="grid-14"></div>
+</section>
+
+<section class="list-section" id="list-15">
+  <p class="list-title">第十六组 — 10 个词</p>
+  <div class="grid" id="grid-15"></div>
+</section>
+
+<section class="list-section" id="list-saved">
+  <p class="list-title">⭐ My Saved Words</p>
+  <div class="grid" id="grid-saved"></div>
+</section>
+
+<script>
+const LISTS = [
+  [
+    { word: "大雾", pinyin: "dà wù" },
+    { word: "危险", pinyin: "wēi xiǎn" },
+    { word: "海盗", pinyin: "hǎi dào" },
+    { word: "作战", pinyin: "zuò zhàn" },
+    { word: "飞行员", pinyin: "fēi xíng yuán" },
+    { word: "微笑", pinyin: "wēi xiào" },
+    { word: "根本", pinyin: "gēn běn" },
+    { word: "第一", pinyin: "dì yī" },
+    { word: "欢迎", pinyin: "huān yíng" },
+    { word: "椅子", pinyin: "yǐ zi" },
+  ],
+  [
+    { word: "民族", pinyin: "mín zú" },
+    { word: "风筝", pinyin: "fēng zhēng" },
+    { word: "长线", pinyin: "cháng xiàn" },
+    { word: "松开", pinyin: "sōng kāi" },
+    { word: "抽拉", pinyin: "chōu lā" },
+    { word: "之下", pinyin: "zhī xià" },
+    { word: "其他", pinyin: "qí tā" },
+    { word: "自由自在", pinyin: "zì yóu zì zài" },
+    { word: "愉快", pinyin: "yú kuài" },
+    { word: "赞赏", pinyin: "zàn shǎng" },
+    { word: "美丽", pinyin: "měi lì" },
+    { word: "飘动", pinyin: "piāo dòng" },
+  ],
+  [
+    { word: "宽阔", pinyin: "kuān kuò" },
+    { word: "石子", pinyin: "shí zǐ" },
+    { word: "风景", pinyin: "fēng jǐng" },
+    { word: "代替", pinyin: "dài tì" },
+    { word: "排队", pinyin: "pái duì" },
+    { word: "急忙", pinyin: "jí máng" },
+    { word: "外婆", pinyin: "wài pó" },
+    { word: "榴莲", pinyin: "liú lián" },
+    { word: "懂得", pinyin: "dǒng de" },
+    { word: "陪伴", pinyin: "péi bàn" },
+  ],
+  [
+    { word: "北方", pinyin: "běi fāng" },
+    { word: "乡村", pinyin: "xiāng cūn" },
+    { word: "特别", pinyin: "tè bié" },
+    { word: "鲜丽", pinyin: "xiān lì" },
+    { word: "夕阳", pinyin: "xī yáng" },
+    { word: "转入", pinyin: "zhuǎn rù" },
+    { word: "鱼虾", pinyin: "yú xiā" },
+    { word: "到处", pinyin: "dào chù" },
+    { word: "汗如雨下", pinyin: "hàn rú yǔ xià" },
+    { word: "丰衣足食", pinyin: "fēng yī zú shí" },
+  ],
+  [
+    { word: "一首歌", pinyin: "yī shǒu gē" },
+    { word: "掉下来", pinyin: "diào xià lái" },
+    { word: "思考", pinyin: "sī kǎo" },
+    { word: "烧开", pinyin: "shāo kāi" },
+    { word: "壶盖", pinyin: "hú gài" },
+    { word: "姑妈", pinyin: "gū mā" },
+    { word: "古时候", pinyin: "gǔ shí hòu" },
+    { word: "到底", pinyin: "dào dǐ" },
+    { word: "科学家", pinyin: "kē xué jiā" },
+  ],
+  [
+    { word: "庭院", pinyin: "tíng yuàn" },
+    { word: "假山", pinyin: "jiǎ shān" },
+    { word: "捉迷藏", pinyin: "zhuō mí cáng" },
+    { word: "跌进", pinyin: "diē jìn" },
+    { word: "水缸", pinyin: "shuǐ gāng" },
+    { word: "慌张", pinyin: "huāng zhāng" },
+    { word: "脑子", pinyin: "nǎo zi" },
+    { word: "聪明", pinyin: "cōng míng" },
+    { word: "胆子壮", pinyin: "dǎn zi zhuàng" },
+    { word: "得救", pinyin: "dé jiù" },
+    { word: "年纪", pinyin: "nián jì" },
+    { word: "见义勇为", pinyin: "jiàn yì yǒng wéi" },
+    { word: "打破", pinyin: "dǎ pò" },
+    { word: "称赞", pinyin: "chēng zàn" },
+  ],
+  [
+    { word: "伸出", pinyin: "shēn chū" },
+    { word: "接着", pinyin: "jiē zhe" },
+    { word: "一阵", pinyin: "yī zhèn" },
+    { word: "拆开", pinyin: "chāi kāi" },
+    { word: "绳子", pinyin: "shéng zi" },
+    { word: "煮熟", pinyin: "zhǔ shú" },
+    { word: "又香又软", pinyin: "yòu xiāng yòu ruǎn" },
+    { word: "非常", pinyin: "fēi cháng" },
+    { word: "滴滴答答", pinyin: "dī dī dā dā" },
+    { word: "淡淡的香味", pinyin: "dàn dàn de xiāng wèi" },
+  ],
+  [
+    { word: "充满", pinyin: "chōng mǎn" },
+    { word: "体积", pinyin: "tǐ jī" },
+    { word: "寻找", pinyin: "xún zhǎo" },
+    { word: "植物", pinyin: "zhí wù" },
+    { word: "米粒", pinyin: "mǐ lì" },
+    { word: "红毛丹", pinyin: "hóng máo dān" },
+    { word: "深紫色", pinyin: "shēn zǐ sè" },
+    { word: "浅黄色", pinyin: "qiǎn huáng sè" },
+    { word: "炎热", pinyin: "yán rè" },
+    { word: "乘凉", pinyin: "chéng liáng" },
+    { word: "绿阴", pinyin: "lǜ yīn" },
+    { word: "观察", pinyin: "guān chá" },
+  ],
+  [
+    { word: "小雨点", pinyin: "xiǎo yǔ diǎn" },
+    { word: "粗心大意", pinyin: "cū xīn dà yì" },
+    { word: "来不及", pinyin: "lái bù jí" },
+    { word: "收回来", pinyin: "shōu huí lái" },
+    { word: "小顽童", pinyin: "xiǎo wán tóng" },
+    { word: "柏油路", pinyin: "bǎi yóu lù" },
+    { word: "魔术师", pinyin: "mó shù shī" },
+    { word: "睡午觉", pinyin: "shuì wǔ jiào" },
+    { word: "彩上颜色", pinyin: "cǎi shàng yán sè" },
+    { word: "玩游戏", pinyin: "wán yóu xì" },
+    { word: "速度变慢", pinyin: "sù dù biàn màn" },
+    { word: "闻富贵花", pinyin: "wén fù guì huā" },
+  ],
+  [
+    { word: "传播", pinyin: "chuán bō" },
+    { word: "本领", pinyin: "běn lǐng" },
+    { word: "旅行", pinyin: "lǚ háng" },
+    { word: "睡莲", pinyin: "shuì lián" },
+    { word: "漂流", pinyin: "piāo liú" },
+    { word: "跟随", pinyin: "gēn suí" },
+    { word: "沉下", pinyin: "chén xià" },
+    { word: "椰子", pinyin: "yē zi" },
+  ],
+  [
+    { word: "生长", pinyin: "shēng cháng" },
+    { word: "森林", pinyin: "sēn lín" },
+    { word: "植物", pinyin: "zhí wù" },
+    { word: "发现", pinyin: "fā xiàn" },
+    { word: "存在", pinyin: "cún zài" },
+    { word: "花朵", pinyin: "huā duǒ" },
+    { word: "吸引", pinyin: "xī yǐn" },
+    { word: "享用", pinyin: "xiǎng yòng" },
+  ],
+  [
+    { word: "散发", pinyin: "sàn fā" },
+    { word: "世界", pinyin: "shì jiè" },
+    { word: "鲜红", pinyin: "xiān hóng" },
+    { word: "动物", pinyin: "dòng wù" },
+    { word: "其他", pinyin: "qí tā" },
+    { word: "粪便", pinyin: "fèn biàn" },
+    { word: "地方", pinyin: "dì fāng" },
+    { word: "举世无双", pinyin: "jǔ shì wú shuāng" },
+  ],
+  [
+    { word: "肮脏", pinyin: "āng zāng" },
+    { word: "辛苦", pinyin: "xīn kǔ" },
+    { word: "转圈", pinyin: "zhuàn quān" },
+    { word: "垃圾箱", pinyin: "lā jī xiāng" },
+    { word: "原来", pinyin: "yuán lái" },
+    { word: "铁片", pinyin: "tiě piàn" },
+    { word: "玻璃", pinyin: "bō li" },
+    { word: "工厂", pinyin: "gōng chǎng" },
+    { word: "价值", pinyin: "jià zhí" },
+    { word: "变成", pinyin: "biàn chéng" },
+  ],
+  [
+    { word: "奇怪", pinyin: "qí guài" },
+    { word: "忘记", pinyin: "wàng jì" },
+    { word: "消失", pinyin: "xiāo shī" },
+    { word: "躲藏", pinyin: "duǒ cáng" },
+    { word: "干净", pinyin: "gān jìng" },
+    { word: "纸张", pinyin: "zhǐ zhāng" },
+    { word: "伤心", pinyin: "shāng xīn" },
+    { word: "有用", pinyin: "yǒu yòng" },
+    { word: "人们", pinyin: "rén men" },
+    { word: "东西", pinyin: "dōng xī" },
+  ],
+  [
+    { word: "环保", pinyin: "huán bǎo" },
+    { word: "手帕", pinyin: "shǒu pà" },
+    { word: "习惯", pinyin: "xí guàn" },
+    { word: "每件", pinyin: "měi jiàn" },
+    { word: "大使", pinyin: "dà shǐ" },
+    { word: "珍惜", pinyin: "zhēn xī" },
+    { word: "或者", pinyin: "huò zhě" },
+    { word: "练习", pinyin: "liàn xí" },
+    { word: "洗刷", pinyin: "xǐ shuā" },
+    { word: "浪费", pinyin: "làng fèi" },
+    { word: "子孙", pinyin: "zǐ sūn" },
+    { word: "行动", pinyin: "háng dòng" },
+  ],
+  [
+    { word: "关紧", pinyin: "guān jǐn" },
+    { word: "水龙头", pinyin: "shuǐ lóng tóu" },
+    { word: "随身", pinyin: "suí shēn" },
+    { word: "小事", pinyin: "xiǎo shì" },
+    { word: "告诉", pinyin: "gào sù" },
+    { word: "道理", pinyin: "dào lǐ" },
+    { word: "空白", pinyin: "kōng bái" },
+    { word: "收集", pinyin: "shōu jí" },
+    { word: "回收中心", pinyin: "huí shōu zhōng xīn" },
+    { word: "节约用水", pinyin: "jié yuē yòng shuǐ" },
+  ],
+];
+
+const writers = new Map();
+
+function makeWriter(el, char) {
+  const w = HanziWriter.create(el, char, {
+    width: 100,
+    height: 100,
+    padding: 4,
+    showOutline: true,
+    strokeAnimationSpeed: 0.5,
+    delayBetweenStrokes: 120,
+    strokeColor: '#d97706',
+    outlineColor: '#e5e7eb',
+    radicalColor: '#b45309',
+  });
+  return w;
+}
+
+function speak(text) {
+  if (!('speechSynthesis' in window)) {
+    alert('Your browser does not support speech synthesis.');
+    return;
+  }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'zh-CN';
+  u.rate = 0.8;
+  const voices = speechSynthesis.getVoices();
+  const zh = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('zh'));
+  if (zh) u.voice = zh;
+  speechSynthesis.speak(u);
+}
+
+function buildCard(item, index) {
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  const num = document.createElement('div');
+  num.className = 'word-num';
+  num.textContent = (index + 1) + '.';
+  card.appendChild(num);
+
+  const pinyin = document.createElement('div');
+  pinyin.className = 'pinyin';
+  pinyin.textContent = item.pinyin;
+  card.appendChild(pinyin);
+
+  const chars = document.createElement('div');
+  chars.className = 'chars';
+
+  for (const ch of item.word) {
+    const box = document.createElement('div');
+    box.className = 'char-box';
+
+    const target = document.createElement('div');
+    target.className = 'writer-target';
+    box.appendChild(target);
+
+    const controls = document.createElement('div');
+    controls.className = 'char-controls';
+
+    const animBtn = document.createElement('button');
+    animBtn.className = 'icon-btn';
+    animBtn.textContent = '▶';
+    animBtn.title = 'Animate strokes';
+
+    const quizBtn = document.createElement('button');
+    quizBtn.className = 'icon-btn';
+    quizBtn.textContent = '✍';
+    quizBtn.title = 'Practice writing';
+
+    controls.appendChild(animBtn);
+    controls.appendChild(quizBtn);
+    box.appendChild(controls);
+    chars.appendChild(box);
+
+    let writer = null;
+    let looping = false;
+    const ensureWriter = () => {
+      if (!writer) writer = makeWriter(target, ch);
+      return writer;
+    };
+
+    const stopLoop = () => {
+      looping = false;
+      animBtn.textContent = '▶';
+    };
+
+    const startLoop = () => {
+      looping = true;
+      animBtn.textContent = '⏹';
+      const w = ensureWriter();
+      const loop = () => {
+        if (!looping) return;
+        w.animateCharacter({ onComplete: () => { if (looping) loop(); } });
+      };
+      loop();
+    };
+
+    animBtn.addEventListener('click', () => {
+      if (looping) {
+        stopLoop();
+      } else {
+        const w = ensureWriter();
+        try { w.cancelQuiz(); } catch(e) {}
+        startLoop();
+      }
+    });
+    quizBtn.addEventListener('click', () => {
+      stopLoop();
+      const w = ensureWriter();
+      w.quiz({
+        onComplete: () => { animBtn.textContent = '✓'; setTimeout(() => animBtn.textContent = '▶', 1500); }
+      });
+    });
+
+    // initialize on first paint so user sees the character outline
+    ensureWriter();
+  }
+
+  card.appendChild(chars);
+
+  const speakBtn = document.createElement('button');
+  speakBtn.className = 'speak-btn';
+  speakBtn.textContent = '🔊 ' + item.word;
+  speakBtn.addEventListener('click', () => speak(item.word));
+  card.appendChild(speakBtn);
+
+  return card;
+}
+
+function renderAll() {
+  LISTS.forEach((list, i) => {
+    const grid = document.getElementById('grid-' + i);
+    list.forEach((item, idx) => grid.appendChild(buildCard(item, idx)));
+  });
+}
+
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.list-section').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('list-' + t.dataset.list).classList.add('active');
+  });
+});
+
+// preload voices (some browsers populate async)
+if ('speechSynthesis' in window) {
+  speechSynthesis.getVoices();
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+}
+
+renderAll();
+
+// ── Custom word input ──────────────────────────────────────────
+const customInput = document.getElementById('customInput');
+const customBtn   = document.getElementById('customBtn');
+const customError = document.getElementById('customError');
+const customResult= document.getElementById('customResult');
+
+function isHanzi(str) {
+  return str.trim().length > 0 && /^[一-鿿㐀-䶿豈-﫿]+$/.test(str.trim());
+}
+
+function generateCustomCard() {
+  const text = customInput.value.trim();
+  customError.style.display = 'none';
+  customResult.innerHTML = '';
+
+  if (!isHanzi(text)) {
+    customError.style.display = 'block';
+    return;
+  }
+
+  // pinyin-pro converts hanzi → toned pinyin
+  const py = pinyinPro.pinyin(text, { toneType: 'symbol', separator: ' ' });
+  const card = buildCard({ word: text, pinyin: py }, 0);
+  // hide the "1." number label for custom cards
+  card.querySelector('.word-num').style.display = 'none';
+  customResult.appendChild(card);
+  // auto-speak the word
+  speak(text);
+}
+
+customBtn.addEventListener('click', generateCustomCard);
+customInput.addEventListener('keydown', e => { if (e.key === 'Enter') generateCustomCard(); });
+
+// ── Saved Words (localStorage) ─────────────────────────────────
+const SAVED_KEY = 'chineseWordsSaved';
+
+function loadSaved() {
+  try { return JSON.parse(localStorage.getItem(SAVED_KEY)) || []; }
+  catch { return []; }
+}
+function persistSaved(arr) {
+  localStorage.setItem(SAVED_KEY, JSON.stringify(arr));
+}
+function isSaved(word) {
+  return loadSaved().some(w => w.word === word);
+}
+function saveWord(word, pinyin) {
+  const arr = loadSaved();
+  if (!arr.some(w => w.word === word)) arr.push({ word, pinyin });
+  persistSaved(arr);
+  updateSavedBadge();
+  renderSavedGrid();
+}
+function removeWord(word) {
+  persistSaved(loadSaved().filter(w => w.word !== word));
+  updateSavedBadge();
+  renderSavedGrid();
+}
+function updateSavedBadge() {
+  document.getElementById('savedBadge').textContent = loadSaved().length;
+}
+function renderSavedGrid() {
+  const grid = document.getElementById('grid-saved');
+  grid.innerHTML = '';
+  const arr = loadSaved();
+  if (arr.length === 0) {
+    grid.innerHTML = '<p class="saved-empty">No saved words yet.<br>Search a word above and tap ⭐ Save.</p>';
+    return;
+  }
+  arr.forEach((item, idx) => {
+    const card = buildCard(item, idx);
+    // add remove button
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-btn';
+    removeBtn.textContent = '🗑 Remove';
+    removeBtn.addEventListener('click', () => removeWord(item.word));
+    card.appendChild(removeBtn);
+    grid.appendChild(card);
+  });
+}
+
+// Attach save button to a custom-generated card
+function attachSaveBtn(card, word, pinyin) {
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'save-btn' + (isSaved(word) ? ' saved' : '');
+  saveBtn.textContent = isSaved(word) ? '✅ Saved' : '⭐ Save';
+  saveBtn.addEventListener('click', () => {
+    if (isSaved(word)) return; // already saved
+    saveWord(word, pinyin);
+    saveBtn.textContent = '✅ Saved';
+    saveBtn.classList.add('saved');
+  });
+  card.appendChild(saveBtn);
+}
+
+// Patch generateCustomCard to include save button
+const _origGenerate = generateCustomCard;
+generateCustomCard = function() {
+  const text = customInput.value.trim();
+  customError.style.display = 'none';
+  customResult.innerHTML = '';
+  if (!isHanzi(text)) { customError.style.display = 'block'; return; }
+  const py = pinyinPro.pinyin(text, { toneType: 'symbol', separator: ' ' });
+  const card = buildCard({ word: text, pinyin: py }, 0);
+  card.querySelector('.word-num').style.display = 'none';
+  attachSaveBtn(card, text, py);
+  customResult.appendChild(card);
+  speak(text);
+};
+customBtn.removeEventListener('click', _origGenerate);
+customBtn.addEventListener('click', generateCustomCard);
+
+// Wire up saved tab click
+document.getElementById('savedTab').addEventListener('click', () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.list-section').forEach(x => x.classList.remove('active'));
+  document.getElementById('savedTab').classList.add('active');
+  document.getElementById('list-saved').classList.add('active');
+  renderSavedGrid();
+});
+
+// Init badge + saved tab on load
+updateSavedBadge();
+
+// ── Add New List ───────────────────────────────────────────────
+const CUSTOM_LISTS_KEY = 'chineseCustomLists';
+
+function loadCustomLists() {
+  try { return JSON.parse(localStorage.getItem(CUSTOM_LISTS_KEY)) || []; }
+  catch { return []; }
+}
+function saveCustomLists(arr) {
+  localStorage.setItem(CUSTOM_LISTS_KEY, JSON.stringify(arr));
+}
+
+function createListTab(label, listIndex) {
+  const tab = document.createElement('button');
+  tab.className = 'tab';
+  tab.dataset.list = listIndex;
+  tab.textContent = label;
+  // insert before the ⭐ My Words tab
+  document.querySelector('.tabs').insertBefore(tab, document.getElementById('savedTab'));
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.list-section').forEach(x => x.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('list-' + listIndex).classList.add('active');
+  });
+  return tab;
+}
+
+function createListSection(listIndex, groupLabel, words) {
+  const section = document.createElement('section');
+  section.className = 'list-section';
+  section.id = 'list-' + listIndex;
+  const title = document.createElement('p');
+  title.className = 'list-title';
+  title.textContent = groupLabel + ' — ' + words.length + ' 个词';
+  section.appendChild(title);
+  const grid = document.createElement('div');
+  grid.className = 'grid';
+  grid.id = 'grid-' + listIndex;
+  section.appendChild(grid);
+  // insert before saved section
+  document.getElementById('list-saved').before(section);
+  words.forEach((item, idx) => grid.appendChild(buildCard(item, idx)));
+}
+
+function addNewList(dateStr, dayStr, words) {
+  const label = dateStr + ' ' + dayStr;
+  const listIndex = 'custom-' + Date.now();
+  createListTab(label, listIndex);
+  createListSection(listIndex, label, words);
+  // activate the new tab
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.list-section').forEach(x => x.classList.remove('active'));
+  document.querySelector(`[data-list="${listIndex}"]`).classList.add('active');
+  document.getElementById('list-' + listIndex).classList.add('active');
+  // persist
+  const all = loadCustomLists();
+  all.push({ label, listIndex, words });
+  saveCustomLists(all);
+}
+
+function restoreCustomLists() {
+  loadCustomLists().forEach(({ label, listIndex, words }) => {
+    createListTab(label, listIndex);
+    createListSection(listIndex, label, words);
+  });
+}
+
+// Toggle form
+document.getElementById('addListToggle').addEventListener('click', () => {
+  const form = document.getElementById('addListForm');
+  form.classList.toggle('open');
+  document.getElementById('addListToggle').textContent =
+    form.classList.contains('open') ? '✕ 关闭 Close' : '＋ 新建听写 Add New List';
+});
+
+// Submit new list
+document.getElementById('addListSubmit').addEventListener('click', () => {
+  const dateStr = document.getElementById('newListDate').value.trim();
+  const dayStr  = document.getElementById('newListDay').value;
+  const raw     = document.getElementById('newListWords').value;
+
+  if (!dateStr) { alert('请填写日期 Please enter a date.'); return; }
+
+  const words = raw.split('\n')
+    .map(l => l.trim())
+    .filter(l => l.length > 0 && /[一-鿿]/.test(l))
+    .map(w => ({
+      word: w,
+      pinyin: pinyinPro.pinyin(w, { toneType: 'symbol', separator: ' ' })
+    }));
+
+  if (words.length === 0) { alert('请输入至少一个汉字词语。'); return; }
+
+  addNewList(dateStr, dayStr, words);
+
+  // reset form
+  document.getElementById('newListDate').value = '';
+  document.getElementById('newListWords').value = '';
+  document.getElementById('addListForm').classList.remove('open');
+  document.getElementById('addListToggle').textContent = '＋ 新建听写 Add New List';
+});
+
+restoreCustomLists();
+</script>
+
+</body>
+</html>
