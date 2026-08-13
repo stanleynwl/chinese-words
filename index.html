@@ -74,6 +74,24 @@
     letter-spacing: 1px;
     margin-bottom: 8px;
   }
+  body.pinyin-hidden .pinyin { display: none; }
+  .pinyin-toggle-row {
+    display: flex;
+    justify-content: center;
+    margin: 0 0 12px;
+  }
+  .pinyin-toggle-btn {
+    padding: 6px 16px;
+    border: 2px solid #d97706;
+    background: #fff;
+    color: #d97706;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .pinyin-toggle-btn:hover { background: #fef3c7; }
   .word-num {
     align-self: flex-start;
     font-size: 13px;
@@ -318,11 +336,24 @@
 </style>
 </head>
 <body>
+<script>
+  (function() {
+    try {
+      if (localStorage.getItem('chineseWords:pinyinVisible') === 'false') {
+        document.body.classList.add('pinyin-hidden');
+      }
+    } catch (e) {}
+  })();
+</script>
 
 <header>
   <h1>📝 听写练习 Dictation Practice</h1>
   <p>点击 ▶ 看笔顺 · 点击 ✍ 自己写 · 点击 🔊 听发音</p>
 </header>
+
+<div class="pinyin-toggle-row">
+  <button class="pinyin-toggle-btn" id="pinyinToggleBtn">拼音 ON — 隐藏 Hide</button>
+</div>
 
 <div class="add-list-section">
   <button class="add-list-toggle" id="addListToggle">＋ 新建听写 Add New List</button>
@@ -1120,6 +1151,23 @@ document.getElementById('addListSubmit').addEventListener('click', () => {
 });
 
 restoreCustomLists();
+
+// ── Pinyin show/hide toggle ─────────────────────────────────────
+const PINYIN_KEY = 'chineseWords:pinyinVisible';
+const pinyinToggleBtn = document.getElementById('pinyinToggleBtn');
+
+function updatePinyinToggleLabel() {
+  const hidden = document.body.classList.contains('pinyin-hidden');
+  pinyinToggleBtn.textContent = hidden ? '拼音 OFF — 显示 Show' : '拼音 ON — 隐藏 Hide';
+}
+
+pinyinToggleBtn.addEventListener('click', () => {
+  const hidden = document.body.classList.toggle('pinyin-hidden');
+  updatePinyinToggleLabel();
+  try { localStorage.setItem(PINYIN_KEY, hidden ? 'false' : 'true'); } catch (e) {}
+});
+
+updatePinyinToggleLabel();
 </script>
 
 </body>
