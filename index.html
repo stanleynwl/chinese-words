@@ -152,8 +152,33 @@
     text-align: center;
     color: #4b5563;
     font-size: 15px;
-    margin: 0 0 12px;
+    margin: 0;
   }
+  .list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    max-width: 1200px;
+    margin: 0 auto 12px;
+    padding: 0 16px;
+  }
+  .list-header .list-title { text-align: left; margin: 0; }
+  .shuffle-btn {
+    flex-shrink: 0;
+    padding: 5px 14px;
+    border: 2px solid #d97706;
+    background: #fff;
+    color: #d97706;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .shuffle-btn:hover { background: #fef3c7; }
+  .shuffle-btn:active { transform: scale(0.96); }
   .custom-section {
     display: flex;
     flex-direction: column;
@@ -419,107 +444,170 @@
 </div>
 
 <section class="list-section active" id="list-0">
-  <p class="list-title">第一组 — 10 个词</p>
+  <div class="list-header">
+    <p class="list-title">第一组 — 10 个词</p>
+    <button class="shuffle-btn" type="button">🔀 打乱 Shuffle</button>
+  </div>
   <div class="grid" id="grid-0"></div>
 </section>
 
 <section class="list-section" id="list-1">
-  <p class="list-title">第二组 — 12 个词</p>
+  <div class="list-header">
+    <p class="list-title">第二组 — 12 个词</p>
+    <button class="shuffle-btn" type="button">🔀 打乱 Shuffle</button>
+  </div>
   <div class="grid" id="grid-1"></div>
 </section>
 
 <section class="list-section" id="list-2">
-  <p class="list-title">第三组 — 10 个词</p>
+  <div class="list-header">
+    <p class="list-title">第三组 — 10 个词</p>
+    <button class="shuffle-btn" type="button">🔀 打乱 Shuffle</button>
+  </div>
   <div class="grid" id="grid-2"></div>
 </section>
 
 <section class="list-section" id="list-3">
-  <p class="list-title">第四组 — 10 个词</p>
+  <div class="list-header">
+    <p class="list-title">第四组 — 10 个词</p>
+    <button class="shuffle-btn" type="button">🔀 打乱 Shuffle</button>
+  </div>
   <div class="grid" id="grid-3"></div>
 </section>
 
 <section class="list-section" id="list-4">
-  <p class="list-title">第五组 — 9 个词</p>
+  <div class="list-header">
+    <p class="list-title">第五组 — 9 个词</p>
+    <button class="shuffle-btn" type="button">🔀 打乱 Shuffle</button>
+  </div>
   <div class="grid" id="grid-4"></div>
 </section>
 
 <section class="list-section" id="list-5">
-  <p class="list-title">第六组 — 14 个词</p>
+  <div class="list-header">
+    <p class="list-title">第六组 — 14 个词</p>
+    <button class="shuffle-btn" type="button">🔀 打乱 Shuffle</button>
+  </div>
   <div class="grid" id="grid-5"></div>
 </section>
 
 <section class="list-section" id="list-6">
-  <p class="list-title">第七组 — 10 个词</p>
+  <div class="list-header">
+    <p class="list-title">第七组 — 10 个词</p>
+    <button class="shuffle-btn" type="button">🔀 打乱 Shuffle</button>
+  </div>
   <div class="grid" id="grid-6"></div>
 </section>
 
 <section class="list-section" id="list-7">
-  <p class="list-title">第八组 — 12 个词</p>
+  <div class="list-header">
+    <p class="list-title">第八组 — 12 个词</p>
+    <button class="shuffle-btn" type="button">🔀 打乱 Shuffle</button>
+  </div>
   <div class="grid" id="grid-7"></div>
 </section>
 
 <section class="list-section" id="list-8">
-  <p class="list-title">第九组 — 12 个词</p>
+  <div class="list-header">
+    <p class="list-title">第九组 — 12 个词</p>
+    <button class="shuffle-btn" type="button">🔀 打乱 Shuffle</button>
+  </div>
   <div class="grid" id="grid-8"></div>
 </section>
 
 <section class="list-section" id="list-9">
-  <p class="list-title">第十组 — 8 个词</p>
+  <div class="list-header">
+    <p class="list-title">第十组 — 8 个词</p>
+    <button class="shuffle-btn" type="button">🔀 打乱 Shuffle</button>
+  </div>
   <div class="grid" id="grid-9"></div>
 </section>
 
 <section class="list-section" id="list-10">
-  <p class="list-title">第十一组 — 8 个词</p>
+  <div class="list-header">
+    <p class="list-title">第十一组 — 8 个词</p>
+    <button class="shuffle-btn" type="button">🔀 打乱 Shuffle</button>
+  </div>
   <div class="grid" id="grid-10"></div>
 </section>
 
 <section class="list-section" id="list-11">
-  <p class="list-title">第十二组 — 8 个词</p>
+  <div class="list-header">
+    <p class="list-title">第十二组 — 8 个词</p>
+    <button class="shuffle-btn" type="button">🔀 打乱 Shuffle</button>
+  </div>
   <div class="grid" id="grid-11"></div>
 </section>
 
 <section class="list-section" id="list-12">
-  <p class="list-title">第十三组 — 10 个词</p>
+  <div class="list-header">
+    <p class="list-title">第十三组 — 10 个词</p>
+    <button class="shuffle-btn" type="button">🔀 打乱 Shuffle</button>
+  </div>
   <div class="grid" id="grid-12"></div>
 </section>
 
 <section class="list-section" id="list-13">
-  <p class="list-title">第十四组 — 10 个词</p>
+  <div class="list-header">
+    <p class="list-title">第十四组 — 10 个词</p>
+    <button class="shuffle-btn" type="button">🔀 打乱 Shuffle</button>
+  </div>
   <div class="grid" id="grid-13"></div>
 </section>
 
 <section class="list-section" id="list-14">
-  <p class="list-title">第十五组 — 12 个词</p>
+  <div class="list-header">
+    <p class="list-title">第十五组 — 12 个词</p>
+    <button class="shuffle-btn" type="button">🔀 打乱 Shuffle</button>
+  </div>
   <div class="grid" id="grid-14"></div>
 </section>
 
 <section class="list-section" id="list-15">
-  <p class="list-title">第十六组 — 10 个词</p>
+  <div class="list-header">
+    <p class="list-title">第十六组 — 10 个词</p>
+    <button class="shuffle-btn" type="button">🔀 打乱 Shuffle</button>
+  </div>
   <div class="grid" id="grid-15"></div>
 </section>
 
 <section class="list-section" id="list-16">
-  <p class="list-title">第十七组 — 9 个词</p>
+  <div class="list-header">
+    <p class="list-title">第十七组 — 9 个词</p>
+    <button class="shuffle-btn" type="button">🔀 打乱 Shuffle</button>
+  </div>
   <div class="grid" id="grid-16"></div>
 </section>
 
 <section class="list-section" id="list-17">
-  <p class="list-title">第十八组 — 9 个词</p>
+  <div class="list-header">
+    <p class="list-title">第十八组 — 9 个词</p>
+    <button class="shuffle-btn" type="button">🔀 打乱 Shuffle</button>
+  </div>
   <div class="grid" id="grid-17"></div>
 </section>
 
 <section class="list-section" id="list-18">
-  <p class="list-title">第十九组 — 10 个词</p>
+  <div class="list-header">
+    <p class="list-title">第十九组 — 10 个词</p>
+    <button class="shuffle-btn" type="button">🔀 打乱 Shuffle</button>
+  </div>
   <div class="grid" id="grid-18"></div>
 </section>
 
 <section class="list-section" id="list-19">
-  <p class="list-title">第二十组 — 10 个词</p>
+  <div class="list-header">
+    <p class="list-title">第二十组 — 10 个词</p>
+    <button class="shuffle-btn" type="button">🔀 打乱 Shuffle</button>
+  </div>
   <div class="grid" id="grid-19"></div>
 </section>
 
 <section class="list-section" id="list-saved">
-  <p class="list-title">⭐ My Saved Words</p>
+  <div class="list-header">
+    <p class="list-title">⭐ My Saved Words</p>
+    <button class="shuffle-btn" type="button">🔀 打乱 Shuffle</button>
+  </div>
   <div class="grid" id="grid-saved"></div>
 </section>
 
@@ -1079,10 +1167,18 @@ function createListSection(listIndex, groupLabel, words) {
   const section = document.createElement('section');
   section.className = 'list-section';
   section.id = 'list-' + listIndex;
+  const header = document.createElement('div');
+  header.className = 'list-header';
   const title = document.createElement('p');
   title.className = 'list-title';
   title.textContent = groupLabel + ' — ' + words.length + ' 个词';
-  section.appendChild(title);
+  header.appendChild(title);
+  const shuffleBtn = document.createElement('button');
+  shuffleBtn.className = 'shuffle-btn';
+  shuffleBtn.type = 'button';
+  shuffleBtn.textContent = '🔀 打乱 Shuffle';
+  header.appendChild(shuffleBtn);
+  section.appendChild(header);
   const grid = document.createElement('div');
   grid.className = 'grid';
   grid.id = 'grid-' + listIndex;
@@ -1168,6 +1264,27 @@ pinyinToggleBtn.addEventListener('click', () => {
 });
 
 updatePinyinToggleLabel();
+
+// ── Per-list shuffle (event delegation) ─────────────────────────
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.shuffle-btn');
+  if (!btn) return;
+  const section = btn.closest('.list-section');
+  if (!section) return;
+  const grid = section.querySelector('.grid');
+  if (!grid) return;
+
+  const cards = Array.from(grid.children);
+  for (let i = cards.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [cards[i], cards[j]] = [cards[j], cards[i]];
+  }
+  cards.forEach(card => grid.appendChild(card));
+
+  grid.querySelectorAll('.word-num').forEach((num, idx) => {
+    num.textContent = (idx + 1) + '.';
+  });
+});
 </script>
 
 </body>
