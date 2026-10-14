@@ -358,6 +358,42 @@
     color: #9ca3af;
     margin-top: 2px;
   }
+  .header-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .print-btn {
+    flex-shrink: 0;
+    padding: 5px 14px;
+    border: 2px solid #0f766e;
+    background: #fff;
+    color: #0f766e;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .print-btn:hover { background: #ccfbf1; }
+  .print-btn:disabled { opacity: 0.6; cursor: wait; }
+  #printSheet { display: none; }
+  @media print {
+    @page { size: A4; margin: 10mm; }
+    body.printing > *:not(#printSheet) { display: none !important; }
+    body.printing #printSheet { display: block; }
+    body.printing { background: #fff !important; margin: 0; padding: 0; }
+  }
+  #printSheet { font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif; color: #000;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  #printSheet h1 { font-size: 15pt; margin: 0 0 3mm; text-align: left; }
+  #printSheet .ps-blk { break-inside: avoid; margin-bottom: 4mm; }
+  #printSheet .ps-word { display: flex; align-items: baseline; gap: 4mm; margin-bottom: 1.5mm; }
+  #printSheet .ps-wc { font-size: 14pt; font-weight: bold; }
+  #printSheet .ps-wp { font-size: 11pt; color: #444; }
+  #printSheet .ps-row { display: flex; width: 190mm; }
+  #printSheet .ps-cell { position: relative; width: calc(190mm / 12); height: calc(190mm / 12);
+    box-sizing: border-box; border: .4mm solid #000; margin-left: -.4mm; margin-top: -.4mm; }
+  #printSheet .ps-cell svg { width: 100%; height: 100%; display: block; }
+  #printSheet .ps-g { stroke: #aaa; stroke-width: 6; stroke-dasharray: 24 24; }
+  #printSheet .ps-py { position: absolute; left: 1mm; top: .5mm; font-size: 7.5pt; font-weight: bold; color: #333; }
 </style>
 </head>
 <body>
@@ -1484,6 +1520,7 @@ function createListSection(listIndex, groupLabel, words) {
   // insert before saved section
   document.getElementById('list-saved').before(section);
   words.forEach((item, idx) => grid.appendChild(buildCard(item, idx)));
+  enhanceHeaders();
 }
 
 function addNewList(dateStr, dayStr, words) {
@@ -1583,6 +1620,120 @@ document.addEventListener('click', (e) => {
     num.textContent = (idx + 1) + '.';
   });
 });
+
+// ── Print / save-as-PDF stroke-order practice sheet ─────────────
+const PS_COLS = 12;
+const psCache = {};
+
+function psLoadStrokes(ch) {
+  if (!psCache[ch]) {
+    psCache[ch] = HanziWriter.loadCharacterData(ch).then(d => (d && d.strokes) || null).catch(() => null);
+  }
+  return psCache[ch];
+}
+
+function psCell(strokes, upto, opts) {
+  const o = opts || {};
+  let paths = '';
+  if (strokes && upto > 0) {
+    paths = strokes.slice(0, upto).map((d, i) => {
+      const fill = o.black ? '#000' : (i === upto - 1 && !o.full ? '#888' : (o.color || '#bbb'));
+      return '<path d="' + d + '" fill="' + fill + '"/>';
+    }).join('');
+  }
+  const fallback = (!strokes && o.ch && (o.black || o.full))
+    ? '<text x="512" y="780" font-size="760" text-anchor="middle" fill="' + (o.black ? '#000' : '#c8c8c8') + '">' + o.ch + '</text>'
+    : '';
+  const scale = o.black ? 'translate(150,190) scale(.8)' : '';
+  return '<div class="ps-cell"><svg viewBox="0 0 1024 1024">' +
+    '<line x1="0" y1="0" x2="1024" y2="1024" class="ps-g"/><line x1="1024" y1="0" x2="0" y2="1024" class="ps-g"/>' +
+    '<line x1="512" y1="0" x2="512" y2="1024" class="ps-g"/><line x1="0" y1="512" x2="1024" y2="512" class="ps-g"/>' +
+    '<g transform="' + scale + ' translate(0,900) scale(1,-1)">' + paths + '</g>' + fallback + '</svg>' +
+    (o.py ? '<span class="ps-py">' + o.py + '</span>' : '') + '</div>';
+}
+
+async function buildPracticeSheet(title, words) {
+  const chars = [...new Set(words.flatMap(w => [...w.word]))];
+  await Promise.all(chars.map(psLoadStrokes));
+  let html = '<h1>' + title + ' — 笔顺练习 Stroke Order Practice</h1>';
+  for (const w of words) {
+    const syl = (w.pinyin || '').trim().split(/\s+/);
+    let block = '<div class="ps-word"><span class="ps-wc">' + w.word + '</span><span class="ps-wp">' + (w.pinyin || '') + '</span></div>';
+    const cs = [...w.word];
+    for (let ci = 0; ci < cs.length; ci++) {
+      const st = await psLoadStrokes(cs[ci]);
+      const n = st ? st.length : 0;
+      let r1 = '', r2 = '';
+      for (let i = 0; i < PS_COLS; i++) {
+        if (i === 0) r1 += psCell(st, n, { black: true, py: syl.length === cs.length ? syl[ci] : '', ch: cs[ci] });
+        else if (i <= n) r1 += psCell(st, i);
+        else r1 += psCell(st, 0);
+        r2 += psCell(st, n, { full: true, color: '#c8c8c8', ch: cs[ci] });
+      }
+      block += '<div class="ps-row">' + r1 + '</div><div class="ps-row">' + r2 + '</div>';
+    }
+    html += '<div class="ps-blk">' + block + '</div>';
+  }
+  return html;
+}
+
+async function printSection(section, btn) {
+  const cards = Array.from(section.querySelectorAll('.card'));
+  const words = cards.map(c => {
+    const sp = c.querySelector('.speak-btn');
+    const py = c.querySelector('.pinyin');
+    return { word: sp ? sp.textContent.replace(/^🔊\s*/, '').trim() : '', pinyin: py ? py.textContent.trim() : '' };
+  }).filter(w => w.word);
+  if (!words.length) { alert('这个列表没有词语 No words to print.'); return; }
+
+  const id = section.id.replace(/^list-/, '');
+  const tab = document.querySelector('.tab[data-list="' + id + '"]');
+  const title = id === 'saved' ? '⭐ My Saved Words'
+    : (tab ? tab.textContent.trim() : (section.querySelector('.list-title') || {}).textContent || '');
+  const label = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '生成中… Preparing';
+  try {
+    let sheet = document.getElementById('printSheet');
+    if (!sheet) {
+      sheet = document.createElement('div');
+      sheet.id = 'printSheet';
+      document.body.appendChild(sheet);
+    }
+    sheet.innerHTML = await buildPracticeSheet('听写 ' + title, words);
+    document.body.classList.add('printing');
+    const prevTitle = document.title;
+    document.title = '听写 ' + title;
+    const done = () => {
+      document.body.classList.remove('printing');
+      document.title = prevTitle;
+      window.removeEventListener('afterprint', done);
+    };
+    window.addEventListener('afterprint', done);
+    window.print();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = label;
+  }
+}
+
+function enhanceHeaders() {
+  document.querySelectorAll('.list-section .list-header').forEach(header => {
+    if (header.querySelector('.print-btn')) return;
+    const shuffle = header.querySelector('.shuffle-btn');
+    const wrap = document.createElement('div');
+    wrap.className = 'header-actions';
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'print-btn';
+    btn.textContent = '🖨 打印/PDF Print';
+    btn.addEventListener('click', () => printSection(header.closest('.list-section'), btn));
+    header.appendChild(wrap);
+    wrap.appendChild(btn);
+    if (shuffle) wrap.appendChild(shuffle);
+  });
+}
+enhanceHeaders();
 </script>
 
 </body>
